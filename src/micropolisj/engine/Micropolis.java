@@ -1075,6 +1075,8 @@ public class Micropolis
 			}
 			while (conNum != 0);
 		}
+		System.out.println(numPower);
+
 	}
 
 	/**
