@@ -1458,6 +1458,8 @@ public class Micropolis
 		bb.put("RAIL", new TerrainBehavior(this, TerrainBehavior.B.RAIL));
 		bb.put("EXPLOSION", new TerrainBehavior(this, TerrainBehavior.B.EXPLOSION));
 		bb.put("RESIDENTIAL", new MapScanner(this, MapScanner.B.RESIDENTIAL));
+		//Changed by Joe
+		bb.put("HOSPITAL", new MapScanner(this, MapScanner.B.HOSPITAL));
 		bb.put("HOSPITAL_CHURCH", new MapScanner(this, MapScanner.B.HOSPITAL_CHURCH));
 		bb.put("COMMERCIAL", new MapScanner(this, MapScanner.B.COMMERCIAL));
 		bb.put("INDUSTRIAL", new MapScanner(this, MapScanner.B.INDUSTRIAL));

@@ -1009,3 +1009,14 @@
 957   misc_animation@0,2080
 958   misc_animation@0,2096
 959   misc_animation@0,2112
+# Mod Hospital #
+960   hospital@0,0        (conducts)
+961   hospital@16,0       (conducts)
+962   hospital@32,0       (conducts)
+963   hospital@0,16        (conducts)
+964   hospital@16,16 (zone)(conducts)(building=3x3)(hospital-zone)(behavior=HOSPITAL)(description=#10)
+965   hospital@32,16       (conducts)
+966   hospital@0,32        (conducts)
+967   hospital@16,32       (conducts)
+968   hospital@32,32       (conducts)
+

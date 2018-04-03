@@ -41,7 +41,9 @@ class MapScanner extends TileBehavior
 		STADIUM_EMPTY,
 		STADIUM_FULL,
 		AIRPORT,
-		SEAPORT;
+		SEAPORT,
+		//Changed by Joe
+		HOSPITAL;
 	}
 
 	@Override
@@ -84,6 +86,8 @@ class MapScanner extends TileBehavior
 		case SEAPORT:
 			doSeaport();
 			return;
+		case HOSPITAL:
+			doHospital();
 		default:
 			assert false;
 		}
@@ -311,7 +315,16 @@ class MapScanner extends TileBehavior
 			city.generateShip();
 		}
 	}
-
+	
+	void doHospital()
+	{
+		//boolean powerOn = checkZonePower();
+		//city.seaportCount++;
+		if ((city.cityTime % 16) == 0) {
+			repairZone(HOSPITAL, 4);
+		}
+	}
+	
 	/**
 	 * Place hospital or church if needed.
 	 */

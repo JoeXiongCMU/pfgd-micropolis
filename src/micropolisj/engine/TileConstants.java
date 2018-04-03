@@ -118,7 +118,7 @@ public class TileConstants
 	static final char LHTHR = 249;  //12 house tiles
 	static final char HHTHR = 260;
 	static final char RZB = 265; //residential zone base
-	static final char HOSPITAL = 409;
+	//static final char HOSPITAL = 409; //Changed by Joe: Remove the hospital
 	static final char CHURCH = 418;
 	static final char COMBASE = 423;
 	static final char COMCLR = 427;
@@ -150,7 +150,10 @@ public class TileConstants
 	static final char VBRDG1 = 949;
 	static final char VBRDG2 = 950;
 	static final char VBRDG3 = 951;
-	public static final char LAST_TILE = 956;
+	
+	//Change Made
+	static final char HOSPITAL = 964;
+	public static final char LAST_TILE = 969;
 
 	static final char [] RoadTable = new char[] {
 		ROADS, ROADS2, ROADS, ROADS3,
@@ -630,9 +633,9 @@ public class TileConstants
 	public static boolean isResidentialZone(int tile)
 	{
 		assert (tile & LOMASK) == tile;
-
+		//Change by Joe
 		return tile >= RESBASE &&
-			tile < HOSPITAL;
+			tile < CHURCH;
 	}
 
 	// includes hospital/church.

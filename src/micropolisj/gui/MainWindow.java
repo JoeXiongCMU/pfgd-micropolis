@@ -955,6 +955,7 @@ public class MainWindow extends JFrame
 			tool.name();
 
 		JToggleButton btn = new JToggleButton();
+		System.out.println("iconName:"+iconName);
 		btn.setIcon(new ImageIcon(MainWindow.class.getResource(iconName)));
 		btn.setSelectedIcon(new ImageIcon(MainWindow.class.getResource(iconSelectedName)));
 		btn.setToolTipText(tipText);
@@ -1046,7 +1047,14 @@ public class MainWindow extends JFrame
 		gridBox.add(b6,c);
 
 		b6.add(makeToolBtn(MicropolisTool.AIRPORT));
+		
+		//Changed by Joe
+		c.gridy++;
+		Box b7 = new Box(BoxLayout.X_AXIS);
+		gridBox.add(b7,c);
 
+		b7.add(makeToolBtn(MicropolisTool.HOSPITAL));
+		
 		// add glue to make all elements align toward top
 		c.gridy++;
 		c.weighty = 1.0;
