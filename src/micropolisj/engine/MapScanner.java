@@ -88,6 +88,7 @@ class MapScanner extends TileBehavior
 			return;
 		case HOSPITAL:
 			doHospital();
+			System.out.println("Hospital!");
 		default:
 			assert false;
 		}
@@ -318,11 +319,15 @@ class MapScanner extends TileBehavior
 	
 	void doHospital()
 	{
-		//boolean powerOn = checkZonePower();
+		boolean powerOn = checkZonePower();
 		//city.seaportCount++;
 		if ((city.cityTime % 16) == 0) {
-			repairZone(HOSPITAL, 4);
+			repairZone(HOSPITAL, 3);
 		}
+		if (powerOn) {
+			
+		}
+		System.out.println("Power:"+powerOn);
 	}
 	
 	/**
@@ -330,12 +335,14 @@ class MapScanner extends TileBehavior
 	 */
 	void makeHospital()
 	{
+		//Changed by Joe: Remove Hospital Behavior
+		/*
 		if (city.needHospital > 0)
 		{
 			zonePlop(HOSPITAL);
 			city.needHospital = 0;
 		}
-
+		 */
 //FIXME- should be 'else if'
 		if (city.needChurch > 0)
 		{
@@ -348,9 +355,11 @@ class MapScanner extends TileBehavior
 	 * Called when the current tile is the key tile of a
 	 * hospital or church.
 	 */
+	//Changed by Joe: Only do Church
 	void doHospitalChurch()
 	{
 		boolean powerOn = checkZonePower();
+		/*
 		if (tile == HOSPITAL)
 		{
 			city.hospitalCount++;
@@ -367,7 +376,7 @@ class MapScanner extends TileBehavior
 				}
 			}
 		}
-		else if (tile == CHURCH)
+		else */if (tile == CHURCH)
 		{
 			city.churchCount++;
 

@@ -592,13 +592,12 @@ public class TileConstants
 		}
 		return false;
 	}
-
+	//Changed by Joe
 	public static boolean isHospitalOrChurch(int tile)
 	{
 		assert (tile & LOMASK) == tile;
-
-		return tile >= HOSPITAL &&
-			tile < COMBASE;
+		//Remove Hospital
+		return tile == CHURCH;
 	}
 
 	/**
