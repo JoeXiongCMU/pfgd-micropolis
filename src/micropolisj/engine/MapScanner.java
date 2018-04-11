@@ -1020,7 +1020,7 @@ class MapScanner extends TileBehavior
 		{
 			for(j = y-range;j < y + range+1;j++)
 			{
-				if(!city.testBounds(x, y))
+				if(!city.testBounds(i, j))
 					continue;
 				
 				int distance = Math.abs(x-i) + Math.abs(y-j);
