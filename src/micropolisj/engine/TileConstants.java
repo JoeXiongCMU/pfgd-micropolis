@@ -151,8 +151,10 @@ public class TileConstants
 	static final char VBRDG2 = 950;
 	static final char VBRDG3 = 951;
 	
-	//Change Made
+	//Change by Joe: Hospital ID
 	static final char HOSPITAL = 964;
+	
+	
 	public static final char LAST_TILE = 969;
 
 	static final char [] RoadTable = new char[] {
@@ -722,4 +724,8 @@ public class TileConstants
 		TileSpec ts = Tiles.get(tile);
 		return ts.getPopulation() / 8;
 	}
+	
+	
+	
+	
 }

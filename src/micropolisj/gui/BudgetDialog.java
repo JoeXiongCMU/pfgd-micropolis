@@ -18,6 +18,7 @@ import micropolisj.engine.*;
 import static micropolisj.gui.MainWindow.formatFunds;
 import static micropolisj.gui.MainWindow.formatGameDate;
 
+//Changed by Joe: Add hospital feature
 public class BudgetDialog extends JDialog
 {
 	Micropolis engine;
@@ -27,6 +28,7 @@ public class BudgetDialog extends JDialog
 	double origRoadPct;
 	double origFirePct;
 	double origPolicePct;
+	double origHospitalPct;
 
 	JLabel roadFundRequest = new JLabel();
 	JLabel roadFundAlloc = new JLabel();
@@ -39,7 +41,11 @@ public class BudgetDialog extends JDialog
 	JLabel fireFundRequest = new JLabel();
 	JLabel fireFundAlloc = new JLabel();
 	JSlider fireFundEntry;
-
+	
+	JLabel hospitalFundRequest = new JLabel();
+	JLabel hospitalFundAlloc = new JLabel();
+	JSlider hospitalFundEntry;
+	
 	JLabel taxRevenueLbl = new JLabel();
 
 	static ResourceBundle strings = MainWindow.strings;
@@ -53,11 +59,13 @@ public class BudgetDialog extends JDialog
 		int newRoadPct = ((Number) roadFundEntry.getValue()).intValue();
 		int newPolicePct = ((Number) policeFundEntry.getValue()).intValue();
 		int newFirePct = ((Number) fireFundEntry.getValue()).intValue();
+		int newHospitalPct = ((Number) hospitalFundEntry.getValue()).intValue();
 
 		engine.cityTax = newTaxRate;
 		engine.roadPercent = (double)newRoadPct / 100.0;
 		engine.policePercent = (double)newPolicePct / 100.0;
 		engine.firePercent = (double)newFirePct / 100.0;
+		engine.hospitalPercent = (double)newHospitalPct / 100.0;
 
 		loadBudgetNumbers(false);
 	}
@@ -71,6 +79,7 @@ public class BudgetDialog extends JDialog
 		roadFundEntry.setValue((int)Math.round(b.roadPercent*100.0));
 		policeFundEntry.setValue((int)Math.round(b.policePercent*100.0));
 		fireFundEntry.setValue((int)Math.round(b.firePercent*100.0));
+		hospitalFundEntry.setValue((int)Math.round(b.hospitalPercent*100.0));
 		}
 
 		taxRevenueLbl.setText(formatFunds(b.taxIncome));
@@ -83,6 +92,9 @@ public class BudgetDialog extends JDialog
 
 		fireFundRequest.setText(formatFunds(b.fireRequest));
 		fireFundAlloc.setText(formatFunds(b.fireFunded));
+		
+		hospitalFundRequest.setText(formatFunds(b.hospitalRequest));
+		hospitalFundAlloc.setText(formatFunds(b.hospitalFunded));
 	}
 
 	static void adjustSliderSize(JSlider slider)
@@ -103,6 +115,7 @@ public class BudgetDialog extends JDialog
 		this.origRoadPct = engine.roadPercent;
 		this.origFirePct = engine.firePercent;
 		this.origPolicePct = engine.policePercent;
+		this.origHospitalPct = engine.hospitalPercent;
 
 		// give text fields of the fund-level spinners a minimum size
 		taxRateEntry = new JSpinner(new SpinnerNumberModel(7,0,20,1));
@@ -114,6 +127,8 @@ public class BudgetDialog extends JDialog
 		adjustSliderSize(fireFundEntry);
 		policeFundEntry = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
 		adjustSliderSize(policeFundEntry);
+		hospitalFundEntry = new JSlider(JSlider.HORIZONTAL, 0, 100, 100);
+		adjustSliderSize(hospitalFundEntry);
 
 		ChangeListener change = new ChangeListener() {
 		public void stateChanged(ChangeEvent ev) {
@@ -124,6 +139,7 @@ public class BudgetDialog extends JDialog
 		roadFundEntry.addChangeListener(change);
 		fireFundEntry.addChangeListener(change);
 		policeFundEntry.addChangeListener(change);
+		hospitalFundEntry.addChangeListener(change);
 
 		Box mainBox = new Box(BoxLayout.Y_AXIS);
 		mainBox.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
@@ -215,7 +231,7 @@ public class BudgetDialog extends JDialog
 		fundingRatesPane.add(new JLabel(strings.getString("budgetdlg.funding_level_hdr")), c1);
 		fundingRatesPane.add(new JLabel(strings.getString("budgetdlg.requested_hdr")), c2);
 		fundingRatesPane.add(new JLabel(strings.getString("budgetdlg.allocation_hdr")), c3);
-
+		
 		c0.gridy = c1.gridy = c2.gridy = c3.gridy = 1;
 		fundingRatesPane.add(new JLabel(strings.getString("budgetdlg.road_fund")), c0);
 		fundingRatesPane.add(roadFundEntry, c1);
@@ -233,6 +249,12 @@ public class BudgetDialog extends JDialog
 		fundingRatesPane.add(fireFundEntry, c1);
 		fundingRatesPane.add(fireFundRequest, c2);
 		fundingRatesPane.add(fireFundAlloc, c3);
+		
+		c0.gridy = c1.gridy = c2.gridy = c3.gridy = 4;
+		fundingRatesPane.add(new JLabel(strings.getString("budgetdlg.hospital_fund")), c0);
+		fundingRatesPane.add(hospitalFundEntry, c1);
+		fundingRatesPane.add(hospitalFundRequest, c2);
+		fundingRatesPane.add(hospitalFundAlloc, c3);
 
 		return fundingRatesPane;
 	}
@@ -311,6 +333,7 @@ public class BudgetDialog extends JDialog
 		engine.roadPercent = this.origRoadPct;
 		engine.firePercent = this.origFirePct;
 		engine.policePercent = this.origPolicePct;
+		engine.hospitalPercent = this.origHospitalPct;
 		loadBudgetNumbers(true);
 	}
 

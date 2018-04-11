@@ -86,7 +86,9 @@ public class Micropolis
 	public int [][] fireRate;       //firestations reach- used for overlay graphs
 	int [][] policeMap;      //police stations- cleared and rebuilt each sim cycle
 	public int [][] policeMapEffect;//police stations reach- used for overlay graphs
-
+	int [][] hospitalMap;      //police stations- cleared and rebuilt each sim cycle
+	public int [][] hospitalMapEffect;//police stations reach- used for overlay graphs
+	
 	/** For each 8x8 section of city, this is an integer between 0 and 64,
 	 * with higher numbers being closer to the center of the city. */
 	int [][] comRate;
@@ -135,6 +137,8 @@ public class Micropolis
 	int lastTotalPop;
 	int lastFireStationCount;
 	int lastPoliceCount;
+	//Changed by Joe: add para
+	int lastHospitalCount;
 
 	int trafficMaxLocationX;
 	int trafficMaxLocationY;
@@ -172,11 +176,15 @@ public class Micropolis
 	public double roadPercent = 1.0;
 	public double policePercent = 1.0;
 	public double firePercent = 1.0;
-
+	//Changed by Joe : hospital percent
+	public double hospitalPercent = 1.0;
+	
 	int taxEffect = 7;
 	int roadEffect = 32;
 	int policeEffect = 1000;
 	int fireEffect = 1000;
+	//Changed by Joe : hospital effect
+	int hospitalEffect = 1000;
 
 	int cashFlow; //net change in totalFunds in previous year
 
@@ -243,6 +251,7 @@ public class Micropolis
 		rateOGMem = new int[smY][smX];
 		fireStMap = new int[smY][smX];
 		policeMap = new int[smY][smX];
+		hospitalMap = new int[smY][smX];
 		policeMapEffect = new int[smY][smX];
 		fireRate = new int[smY][smX];
 		comRate = new int[smY][smX];
@@ -1075,7 +1084,6 @@ public class Micropolis
 			}
 			while (conNum != 0);
 		}
-		System.out.println(numPower);
 
 	}
 
@@ -1660,6 +1668,8 @@ public class Micropolis
 
 		history.cityTime = cityTime;
 
+		//Changed by Joe: ignore need hospital infor
+		/*
 		if (hospitalCount < resPop / 256)
 		{
 			needHospital = 1;
@@ -1672,7 +1682,7 @@ public class Micropolis
 		{
 			needHospital = 0;
 		}
-
+		*/
 		if (churchCount < resPop / 256)
 		{
 			needChurch = 1;
@@ -1726,7 +1736,8 @@ public class Micropolis
 	/** Tax income multiplier, for various difficulty settings.
 	 */
 	static final double [] FLevels = { 1.4, 1.2, 0.8 };
-
+	
+	//Changed by Joe: Add Hospital tax feature
 	void collectTaxPartial()
 	{
 		lastRoadTotal = roadTotal;
@@ -1734,6 +1745,7 @@ public class Micropolis
 		lastTotalPop = totalPop;
 		lastFireStationCount = fireStationCount;
 		lastPoliceCount = policeCount;
+		lastHospitalCount = hospitalCount;
 
 		BudgetNumbers b = generateBudget();
 
@@ -1741,7 +1753,8 @@ public class Micropolis
 		budget.roadFundEscrow -= b.roadFunded;
 		budget.fireFundEscrow -= b.fireFunded;
 		budget.policeFundEscrow -= b.policeFunded;
-
+		budget.hospitalFundEscrow -= b.hospitalFunded;
+		
 		taxEffect = b.taxRate;
 		roadEffect = b.roadRequest != 0 ?
 			(int)Math.floor(32.0 * (double)b.roadFunded / (double)b.roadRequest) :
@@ -1752,6 +1765,9 @@ public class Micropolis
 		fireEffect = b.fireRequest != 0 ?
 			(int)Math.floor(1000.0 * (double)b.fireFunded / (double)b.fireRequest) :
 			1000;
+		hospitalEffect = b.hospitalRequest != 0 ?
+				(int)Math.floor(1000.0 * (double)b.hospitalFunded / (double)b.hospitalRequest) :
+				1000;
 	}
 
 	public static class FinancialHistory
@@ -1762,11 +1778,12 @@ public class Micropolis
 		public int operatingExpenses;
 	}
 	public ArrayList<FinancialHistory> financialHistory = new ArrayList<FinancialHistory>();
-
+	
+	//Changed by Joe: Add hospital tax
 	void collectTax()
 	{
 		int revenue = budget.taxFund / TAXFREQ;
-		int expenses = -(budget.roadFundEscrow + budget.fireFundEscrow + budget.policeFundEscrow) / TAXFREQ;
+		int expenses = -(budget.roadFundEscrow + budget.fireFundEscrow + budget.policeFundEscrow + budget.hospitalFundEscrow) / TAXFREQ;
 
 		FinancialHistory hist = new FinancialHistory();
 		hist.cityTime = cityTime;
@@ -1783,6 +1800,7 @@ public class Micropolis
 		budget.roadFundEscrow = 0;
 		budget.fireFundEscrow = 0;
 		budget.policeFundEscrow = 0;
+		budget.hospitalFundEscrow = 0;
 	}
 
 	/** Annual maintenance cost of each police station. */
@@ -1790,10 +1808,15 @@ public class Micropolis
 
 	/** Annual maintenance cost of each fire station. */
 	static final int FIRE_STATION_MAINTENANCE = 100;
-
+	
+	//Changed by Joe
+	/** Annual maintenance cost of each hospital station. */
+	static final int HOSPITAL_STATION_MAINTENANCE = 100;
+	
 	/**
 	 * Calculate the current budget numbers.
 	 */
+	//Changed by Joe: Add hospital feature
 	public BudgetNumbers generateBudget()
 	{
 		BudgetNumbers b = new BudgetNumbers();
@@ -1801,6 +1824,7 @@ public class Micropolis
 		b.roadPercent = Math.max(0.0, roadPercent);
 		b.firePercent = Math.max(0.0, firePercent);
 		b.policePercent = Math.max(0.0, policePercent);
+		b.hospitalPercent = Math.max(0.0,hospitalPercent);
 
 		b.previousBalance = budget.totalFunds;
 		b.taxIncome = (int)Math.round(lastTotalPop * landValueAverage / 120 * b.taxRate * FLevels[gameLevel]);
@@ -1809,11 +1833,15 @@ public class Micropolis
 		b.roadRequest = (int)Math.round((lastRoadTotal + lastRailTotal * 2) * RLevels[gameLevel]);
 		b.fireRequest = FIRE_STATION_MAINTENANCE * lastFireStationCount;
 		b.policeRequest = POLICE_STATION_MAINTENANCE * lastPoliceCount;
+		b.hospitalRequest = HOSPITAL_STATION_MAINTENANCE * lastHospitalCount;
+		
 
 		b.roadFunded = (int)Math.round(b.roadRequest * b.roadPercent);
 		b.fireFunded = (int)Math.round(b.fireRequest * b.firePercent);
 		b.policeFunded = (int)Math.round(b.policeRequest * b.policePercent);
-
+		b.hospitalFunded = (int)Math.round(b.hospitalRequest * b.hospitalPercent);
+		
+		
 		int yumDuckets = budget.totalFunds + b.taxIncome;
 		assert yumDuckets >= 0;
 
@@ -1826,29 +1854,48 @@ public class Micropolis
 				if (yumDuckets >= b.policeFunded)
 				{
 					yumDuckets -= b.policeFunded;
+					if (yumDuckets >= b.hospitalFunded)
+					{
+						yumDuckets -= b.hospitalFunded;
+					}
+					else
+					{
+						//Only road,fire and police is totally funded,hospital is partly funded
+						assert b.hospitalRequest != 0;
+						b.hospitalFunded = yumDuckets;
+						b.hospitalPercent = (double)b.hospitalFunded / (double)b.hospitalRequest;
+						yumDuckets = 0;
+					}
 				}
 				else
 				{
+					//Only road and fire is totally funded,police is partly funded
 					assert b.policeRequest != 0;
 
 					b.policeFunded = yumDuckets;
 					b.policePercent = (double)b.policeFunded / (double)b.policeRequest;
+					b.hospitalFunded = 0;
+					b.hospitalPercent = 0.0;
 					yumDuckets = 0;
 				}
 			}
 			else
 			{
+				//Only road is totally funded, fire is partly funded
 				assert b.fireRequest != 0;
 
 				b.fireFunded = yumDuckets;
 				b.firePercent = (double)b.fireFunded / (double)b.fireRequest;
 				b.policeFunded = 0;
 				b.policePercent = 0.0;
+				b.hospitalFunded = 0;
+				b.hospitalPercent = 0.0;
 				yumDuckets = 0;
 			}
 		}
 		else
 		{
+			//Only road is partly funded
 			assert b.roadRequest != 0;
 
 			b.roadFunded = yumDuckets;
@@ -1857,9 +1904,11 @@ public class Micropolis
 			b.firePercent = 0.0;
 			b.policeFunded = 0;
 			b.policePercent = 0.0;
+			b.hospitalFunded = 0;
+			b.hospitalPercent = 0.0;
 		}
 
-		b.operatingExpenses = b.roadFunded + b.fireFunded + b.policeFunded;
+		b.operatingExpenses = b.roadFunded + b.fireFunded + b.policeFunded + b.hospitalFunded;
 		b.newBalance = b.previousBalance + b.taxIncome - b.operatingExpenses;
 
 		return b;

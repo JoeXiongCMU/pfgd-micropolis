@@ -31,4 +31,9 @@ public class BudgetNumbers
 	public int policeRequest;
 	public int policeFunded;
 	public double policePercent;
+	
+	//changed by Joe : Hospital 
+	public int hospitalRequest;
+	public int hospitalFunded;
+	public double hospitalPercent;
 }

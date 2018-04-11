@@ -88,7 +88,6 @@ class MapScanner extends TileBehavior
 			return;
 		case HOSPITAL:
 			doHospital();
-			System.out.println("Hospital!");
 		default:
 			assert false;
 		}
@@ -317,25 +316,41 @@ class MapScanner extends TileBehavior
 		}
 	}
 	
+	//Add by Joe : Do Hospital Function
 	void doHospital()
 	{
 		boolean powerOn = checkZonePower();
-		//city.seaportCount++;
-		if ((city.cityTime % 16) == 0) {
+		city.hospitalCount++;
+		if ((city.cityTime % 8) == 0) {
 			repairZone(HOSPITAL, 3);
 		}
+		
+		int z;
 		if (powerOn) {
-			
+			z = city.hospitalEffect;
+		} else {
+			z = city.hospitalEffect / 2;
 		}
-		System.out.println("Power:"+powerOn);
+
+		traffic.mapX = xpos;
+		traffic.mapY = ypos;
+		if (!traffic.findPerimeterRoad()) {
+			z /= 2;
+		}
+
+		city.hospitalMap[ypos/8][xpos/8] += z;
+		
 	}
+	
+	
+	
 	
 	/**
 	 * Place hospital or church if needed.
 	 */
 	void makeHospital()
 	{
-		//Changed by Joe: Remove Hospital Behavior
+		//Changed by Joe: Remove Ori Hospital Behavior
 		/*
 		if (city.needHospital > 0)
 		{
@@ -446,6 +461,7 @@ class MapScanner extends TileBehavior
 		city.comZoneCount++;
 
 		int tpop = commercialZonePop(tile);
+		tpop = (int)Math.floor((double)tpop * hospitalValue(xpos,ypos));
 		city.comPop += tpop;
 
 		int trafficGood;
@@ -499,7 +515,8 @@ class MapScanner extends TileBehavior
 		boolean powerOn = checkZonePower();
 		city.indZoneCount++;
 
-		int tpop = industrialZonePop(tile);
+		int tpop = industrialZonePop(tile) ;
+		tpop = (int)Math.floor((double)tpop * hospitalValue(xpos,ypos));
 		city.indPop += tpop;
 
 		int trafficGood;
@@ -558,7 +575,9 @@ class MapScanner extends TileBehavior
 		}
 		else
 		{
-			tpop = residentialZonePop(tile);
+			//Add hospital powerup effect 
+			tpop = residentialZonePop(tile) ;
+			tpop = (int)Math.floor((double)tpop * hospitalValue(xpos,ypos));
 		}
 
 		city.resPop += tpop;
@@ -592,6 +611,7 @@ class MapScanner extends TileBehavior
 			{
 				if (tpop == 0 && PRNG.nextInt(4) == 0)
 				{
+					//No longer make hospital, only make church in this function
 					makeHospital();
 					return;
 				}
@@ -982,4 +1002,63 @@ class MapScanner extends TileBehavior
 		traffic.sourceZone = zoneType;
 		return traffic.makeTraffic();
 	}
+	
+	
+	//Hospital Value for the tile(x,y)
+	/**
+	 * @return the value between 1 to 3 of the hospital value for the tile(x,y)
+	 */
+	double hospitalValue(int x,int y)
+	{
+		int i,j;
+		double effect = 1;
+		int range = 8;
+		
+		int bestDistance = 1000;
+		//get the nearest hospital and cal the distance
+		for(i = x-range;i < x + range+1;i++)
+		{
+			for(j = y-range;j < y + range+1;j++)
+			{
+				if(!city.testBounds(x, y))
+					continue;
+				
+				int distance = Math.abs(x-i) + Math.abs(y-j);
+				if(distance > range)
+					continue;
+				
+				char tile = city.getTile(i, j);
+				if(tile == HOSPITAL)
+				{
+					if(distance < bestDistance)
+					{
+						bestDistance = distance;
+					}
+				}
+			}
+		}
+		
+		//If very near to the hospital, triple the population
+		if(bestDistance <= range/2)
+		{
+			effect = Math.floor((double)city.hospitalEffect / 1000)*3;
+			
+		}
+		//If near to the hospital, double the population
+		else if(bestDistance <= range)
+		{
+			effect = Math.floor((double)city.hospitalEffect / 1000)*2;
+		}
+		else
+			effect = 1;
+		
+		//The hospital effect could not lower than 1.
+		if(effect < 1)
+			effect = 1;
+		
+		return effect;
+	}
+		
+	
+	
 }
